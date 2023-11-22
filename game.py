@@ -19,6 +19,14 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.Surface((50,40))
         self.image.fill((GREEN))
         self.rect = self.image.get_rect()
+        self.rect.center = (WIDTH/2,HEIGHT/2)
+    def update(self):
+        self.rect.x 
+
+all_sprites = pygame.sprite.Group()
+player = Player()
+all_sprites.add(player)
+
 #迴圈
 running = True
 while running:
@@ -28,8 +36,9 @@ while running:
         if event.type == pygame.QUIT:
             running = False
     #更新遊戲
-
+    all_sprites.update()
     #畫面顯示
     screen.fill(WHITE)
+    all_sprites.draw(screen)
     pygame.display.update()
 pygame.quit() 
