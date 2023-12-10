@@ -24,6 +24,8 @@ class Rock(pygame.sprite.Sprite):
         self.image = pygame.Surface((30,30))
         self.image.fill((RED))
         self.rect = self.image.get_rect()
+        self.radius = self.rect.width / 2
+        pygame.draw.circle(self.image,RED,self.rect.center,self.radius)
         self.rect.x = random.randrange(0, WIDTH-self.rect.width)
         self.rect.y = random.randrange(-100,-40)
         self.speedy = random.randrange(2,10)
@@ -47,6 +49,8 @@ class Player1(pygame.sprite.Sprite):
         self.image = pygame.Surface((50,40))
         self.image.fill((GREEN))
         self.rect = self.image.get_rect()
+        self.radius =25
+        pygame.draw.circle(self.image,RED,self.rect.center,self.radius)
         self.rect.centerx = WIDTH/2
         self.rect.bottom = HEIGHT- 90
         self.speedx = 10
@@ -79,6 +83,7 @@ class Player1(pygame.sprite.Sprite):
     def shoot(self):
         bullet = Bullet(self.rect.centerx, self.rect.top)
         all_sprites.add(bullet)
+        bullets.add(bullet)
 #組但
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -96,11 +101,14 @@ class Bullet(pygame.sprite.Sprite):
            self.kill() 
 
 all_sprites = pygame.sprite.Group()
+rocks = pygame.sprite.Group()
+bullets = pygame.sprite.Group()
 player1 = Player1()
 all_sprites.add(player1)
 for i in range(8):
     r = Rock()
     all_sprites.add(r)
+    rocks.add(r)
     
 #迴圈
 running = True
@@ -116,6 +124,14 @@ while running:
 
     #更新遊戲
     all_sprites.update()
+    hits = pygame.sprite.groupcollide(rocks, bullets, True,True)
+    for hit in hits:
+        r = Rock()
+        all_sprites.add(r)
+        rocks.add (r)
+    hits =  pygame.sprite.spritecollide(player1, rocks, True,pygame.sprite.collide_circle)
+    if hits:
+        running = False
     #畫面顯示
     screen.fill(WHITE)
     all_sprites.draw(screen)
