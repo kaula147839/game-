@@ -1,5 +1,19 @@
 import pygame
 import random
+import win32api
+import win32gui
+
+# 語言程式碼
+# https://msdn.microsoft.com/en-us/library/cc233982.aspx
+LID = {0x0404: "Chinese (Traditional)(Taiwan)",
+       0x0409: 'English (United States)'}
+
+
+
+
+
+
+
 
 FPS = 60
 WIDTH  = 500 
