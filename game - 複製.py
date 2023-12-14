@@ -1,6 +1,20 @@
 import pygame
 import random
-import os
+import win32api
+import win32gui
+
+# 語言程式碼
+# https://msdn.microsoft.com/en-us/library/cc233982.aspx
+LID = {0x0404: "Chinese (Traditional)(Taiwan)",
+       0x0409: 'English (United States)'}
+
+
+
+
+
+
+
+
 FPS = 60
 WIDTH  = 500 
 HEIGHT = 600  
@@ -17,22 +31,13 @@ screen = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("雞弊你")
 clock = pygame.time.Clock()
 
-#載入圖片
-sky_img = pygame.image.load(os.path.join("img", "sky.png")).convert()
-player1_img = pygame.image.load(os.path.join("img", "fighter-jet.png")).convert()
-plane_img = pygame.image.load(os.path.join("img", "plane.png")).convert()
-bullet_img = pygame.image.load(os.path.join("img", "player1_bullet.png")).convert()
-
-
 #俗投
-class plane(pygame.sprite.Sprite):
+class Rock(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = plane_img
-        self.image.set_colorkey(BLACK)
+        self.image = pygame.Surface((30,30))
+        self.image.fill((RED))
         self.rect = self.image.get_rect()
-        self.radius = self.rect.width / 2
-        pygame.draw.circle(self.image,RED,self.rect.center,self.radius)
         self.rect.x = random.randrange(0, WIDTH-self.rect.width)
         self.rect.y = random.randrange(-100,-40)
         self.speedy = random.randrange(2,10)
@@ -53,11 +58,9 @@ class plane(pygame.sprite.Sprite):
 class Player1(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(player1_img,(50,38))
-        self.image.set_colorkey(BLACK)
-        self.rect = self.image.get_rect() 
-        self.radius =25
-        pygame.draw.circle(self.image,RED,self.rect.center,self.radius)
+        self.image = pygame.Surface((50,40))
+        self.image.fill((GREEN))
+        self.rect = self.image.get_rect()
         self.rect.centerx = WIDTH/2
         self.rect.bottom = HEIGHT- 90
         self.speedx = 10
@@ -90,7 +93,6 @@ class Player1(pygame.sprite.Sprite):
     def shoot(self):
         bullet = Bullet(self.rect.centerx, self.rect.top)
         all_sprites.add(bullet)
-        bullets.add(bullet)
 #組但
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -108,14 +110,11 @@ class Bullet(pygame.sprite.Sprite):
            self.kill() 
 
 all_sprites = pygame.sprite.Group()
-rocks = pygame.sprite.Group()
-bullets = pygame.sprite.Group()
 player1 = Player1()
 all_sprites.add(player1)
 for i in range(8):
-    p = plane()
-    all_sprites.add(p)
-    rocks.add(p)
+    r = Rock()
+    all_sprites.add(r)
     
 #迴圈
 running = True
@@ -131,17 +130,8 @@ while running:
 
     #更新遊戲
     all_sprites.update()
-    hits = pygame.sprite.groupcollide(rocks, bullets, True,True)
-    for hit in hits:
-        p = plane()
-        all_sprites.add(p)
-        rocks.add (p)
-    hits =  pygame.sprite.spritecollide(player1, rocks, True,pygame.sprite.collide_circle)
-    if hits:
-        running = False
     #畫面顯示
     screen.fill(WHITE)
-    screen.blit(sky_img,(0,0))
     all_sprites.draw(screen)
     pygame.display.update()
 pygame.quit() 
