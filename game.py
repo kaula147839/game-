@@ -21,11 +21,11 @@ clock = pygame.time.Clock()
 sky_img = pygame.image.load(os.path.join("img", "sky.png")).convert()
 player1_img = pygame.image.load(os.path.join("img", "fighter-jet.png")).convert()
 plane_img = pygame.image.load(os.path.join("img", "plane.png")).convert()
-bullet_img = pygame.image.load(os.path.join("img", "player1_bullet.png")).convert()
+bullet_player1_img = pygame.image.load(os.path.join("img", "player1_bullet.png")).convert()
 
 
-#俗投
-class plane(pygame.sprite.Sprite):
+#輝船
+class Plane(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.image = plane_img
@@ -33,7 +33,7 @@ class plane(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.radius = self.rect.width / 2
         pygame.draw.circle(self.image,RED,self.rect.center,self.radius)
-        self.rect.x = random.randrange(0, WIDTH-self.rect.width)
+        self.rect.x = random.randrange(0, WIDTH - self.rect.width)
         self.rect.y = random.randrange(-100,-40)
         self.speedy = random.randrange(2,10)
         self.speedx = random.randrange(-5,4)
@@ -95,8 +95,8 @@ class Player1(pygame.sprite.Sprite):
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((10,20))
-        self.image.fill((BLACK))
+        self.image = bullet_player1_img
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.bottom = y
@@ -108,14 +108,14 @@ class Bullet(pygame.sprite.Sprite):
            self.kill() 
 
 all_sprites = pygame.sprite.Group()
-rocks = pygame.sprite.Group()
+planes = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 player1 = Player1()
 all_sprites.add(player1)
 for i in range(8):
-    p = plane()
+    p = Plane()
     all_sprites.add(p)
-    rocks.add(p)
+    planes.add(p)
     
 #迴圈
 running = True
@@ -131,12 +131,12 @@ while running:
 
     #更新遊戲
     all_sprites.update()
-    hits = pygame.sprite.groupcollide(rocks, bullets, True,True)
+    hits = pygame.sprite.groupcollide(planes, bullets, True,True)
     for hit in hits:
-        p = plane()
+        p = Plane()
         all_sprites.add(p)
-        rocks.add (p)
-    hits =  pygame.sprite.spritecollide(player1, rocks, True,pygame.sprite.collide_circle)
+        planes.add (p)
+    hits =  pygame.sprite.spritecollide(player1, planes, True,pygame.sprite.collide_circle)
     if hits:
         running = False
     #畫面顯示
