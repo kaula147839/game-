@@ -7,7 +7,7 @@ HEIGHT = 600
 
 WHITE = (255,255,255)
 GREEN = (0, 255, 0)
-GREY = (190,190,190)
+GREY = (190,190,190) 
 RED = (255,0,0)
 YELLOW = (255,255,0)
 BLACK = (0,0,0)
@@ -28,14 +28,14 @@ bullet_player1_img = pygame.image.load(os.path.join("img", "player1_bullet.png")
 class Plane(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = plane_img
+        self.image = pygame.transform.scale(plane_img,(50,38))
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
-        self.radius = self.rect.width / 2
-        pygame.draw.circle(self.image,RED,self.rect.center,self.radius)
+        self.radius = self.rect.width *0.8 /2
+        #pygame.draw.circle(self.image,RED,self.rect.center,self.radius)
         self.rect.x = random.randrange(0, WIDTH - self.rect.width)
         self.rect.y = random.randrange(-100,-40)
-        self.speedy = random.randrange(2,10)
+        self.speedy = 1
         self.speedx = random.randrange(-5,4)
         
 
@@ -49,15 +49,15 @@ class Plane(pygame.sprite.Sprite):
             self.speedy = random.randrange(2,10)
             self.speedx = random.randrange(-5,4)
      
-#飛船
+#玩家
 class Player1(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.transform.scale(player1_img,(50,38))
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect() 
-        self.radius =25
-        pygame.draw.circle(self.image,RED,self.rect.center,self.radius)
+        self.radius =20
+        #pygame.draw.circle(self.image,RED,self.rect.center,self.radius)
         self.rect.centerx = WIDTH/2
         self.rect.bottom = HEIGHT- 90
         self.speedx = 10
@@ -95,7 +95,7 @@ class Player1(pygame.sprite.Sprite):
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = bullet_player1_img
+        self.image = pygame.transform.scale(bullet_player1_img,(20,20))
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.centerx = x
