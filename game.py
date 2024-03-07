@@ -7,7 +7,7 @@ HEIGHT = 600
 
 WHITE = (255,255,255)
 GREEN = (0, 255, 0)
-GREY = (190,190,190) 
+GREY = (190,190,190)
 RED = (255,0,0)
 YELLOW = (255,255,0)
 BLACK = (0,0,0)
@@ -23,6 +23,32 @@ player1_img = pygame.image.load(os.path.join("img", "fighter-jet.png")).convert(
 plane_img = pygame.image.load(os.path.join("img", "plane.png")).convert()
 bullet_player1_img = pygame.image.load(os.path.join("img", "player1_bullet.png")).convert()
 
+font_name = pygame.font.match_font('arial')
+def draw_text(surf, text, size, x, y):
+    font = pygame.font.Font(font_name, size)
+    text_surface = font.render(text, True, WHITE)
+    text_rect = text_surface.get_rect()
+    text_rect.centerx = x
+    text_rect.top = y
+    surf.blit(text_surface, text_rect)
+
+def new_plane():
+    p = Plane()
+    all_sprites.add(p)
+    planes.add (p)
+
+def draw_health(surf, hp, x, y):
+    if hp < 0:
+        hp = 0
+    BAR_LENGTH = 100
+    BAR_HEIGHT = 10
+    fill = (hp/100)*BAR_LENGTH
+    outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
+    fill_rect = pygame.Rect(x, y, fill, BAR_HEIGHT)
+    pygame.draw.rect(surf, GREEN, fill_rect)
+    pygame.draw.rect(surf, WHITE, outline_rect, 2)
+    
+
 
 #輝船
 class Plane(pygame.sprite.Sprite):
@@ -31,11 +57,11 @@ class Plane(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(plane_img,(50,38))
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
-        self.radius = self.rect.width *0.8 /2
+        self.radius = int(self.rect.width *0.8 /2)
         #pygame.draw.circle(self.image,RED,self.rect.center,self.radius)
         self.rect.x = random.randrange(0, WIDTH - self.rect.width)
         self.rect.y = random.randrange(-100,-40)
-        self.speedy = 1
+        self.speedy = random.randrange(2,10)
         self.speedx = random.randrange(-5,4)
         
 
@@ -62,6 +88,7 @@ class Player1(pygame.sprite.Sprite):
         self.rect.bottom = HEIGHT- 90
         self.speedx = 10
         self.speedy = 10
+        self.health = 100
 
 
     def update(self):
@@ -113,10 +140,10 @@ bullets = pygame.sprite.Group()
 player1 = Player1()
 all_sprites.add(player1)
 for i in range(8):
-    p = Plane()
-    all_sprites.add(p)
-    planes.add(p)
-    
+    new_plane()
+score = 0
+
+
 #迴圈
 running = True
 while running:
@@ -130,18 +157,23 @@ while running:
                 player1.shoot()
 
     #更新遊戲
-    all_sprites.update()
+    all_sprites.update()   
     hits = pygame.sprite.groupcollide(planes, bullets, True,True)
     for hit in hits:
-        p = Plane()
-        all_sprites.add(p)
-        planes.add (p)
-    hits =  pygame.sprite.spritecollide(player1, planes, True,pygame.sprite.collide_circle)
-    if hits:
-        running = False
+        score += 1
+        new_plane()
+
+    hits =  pygame.sprite.spritecollide(player1, planes, True ,pygame.sprite.collide_circle)
+    for hit in hits:
+        new_plane()
+        player1.health -= hit.radius
+        if player1.health <= 0:
+            running = False
     #畫面顯示
     screen.fill(WHITE)
     screen.blit(sky_img,(0,0))
     all_sprites.draw(screen)
+    draw_text(screen, str(score),18,WIDTH/2,10)
+    draw_health(screen,player1.health,5 ,10 )
     pygame.display.update()
 pygame.quit() 
