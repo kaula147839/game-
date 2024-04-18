@@ -23,6 +23,7 @@ player1_img = pygame.image.load(os.path.join("img", "fighter-jet.png")).convert(
 plane_img = pygame.image.load(os.path.join("img", "plane.png")).convert()
 bullet_player1_img = pygame.image.load(os.path.join("img", "player1_bullet.png")).convert()
 
+#輸入字串
 font_name = pygame.font.match_font('arial')
 def draw_text(surf, text, size, x, y):
     font = pygame.font.Font(font_name, size)
@@ -32,11 +33,13 @@ def draw_text(surf, text, size, x, y):
     text_rect.top = y
     surf.blit(text_surface, text_rect)
 
+
 def new_plane():
     p = Plane()
     all_sprites.add(p)
     planes.add (p)
 
+#畫生命條
 def draw_health(surf, hp, x, y):
     if hp < 0:
         hp = 0
@@ -74,7 +77,6 @@ class Plane(pygame.sprite.Sprite):
             self.rect.y = random.randrange(-100,-40)
             self.speedy = random.randrange(2,10)
             self.speedx = random.randrange(-5,4)
-     
 #玩家
 class Player1(pygame.sprite.Sprite):
     def __init__(self):
@@ -109,9 +111,10 @@ class Player1(pygame.sprite.Sprite):
         if self.rect.right < 0:
             self.rect.left = WIDTH 
         if self.rect.top < 0:
-            self.rect.bottom = HEIGHT
-        if self.rect.bottom >HEIGHT:
             self.rect.top = 0
+        if self.rect.bottom > HEIGHT:
+            self.rect.bottom = HEIGHT
+            
 
 
     def shoot(self):
