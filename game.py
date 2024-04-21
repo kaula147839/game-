@@ -22,6 +22,14 @@ sky_img = pygame.image.load(os.path.join("img", "sky.png")).convert()
 player1_img = pygame.image.load(os.path.join("img", "fighter-jet.png")).convert()
 plane_img = pygame.image.load(os.path.join("img", "plane.png")).convert()
 bullet_player1_img = pygame.image.load(os.path.join("img", "player1_bullet.png")).convert()
+expl_anim = {}
+expl_anim['lg'] = []
+expl_anim['sm'] = []
+for i in range(5):
+    expl_img = pygame.image.load(os.path.join("img",f"expl{i}.png")).convert()
+    expl_img.set_colorkey(WHITE)
+    expl_anim['lg'].append(pygame.transform.scale(expl_img, (75,75)))
+    expl_anim['sm'].append(pygame.transform.scale(expl_img, (75,75)))
 
 #輸入字串
 font_name = pygame.font.match_font('arial')
@@ -136,6 +144,30 @@ class Bullet(pygame.sprite.Sprite):
        self.rect.y += self.speedy
        if self.rect.bottom < 0:
            self.kill() 
+#爆炸
+class Explosion(pygame.sprite.Sprite):
+    def __init__(self, center, size):
+        pygame.sprite.Sprite.__init__(self)
+        self.size = size
+        self.image = expl_anim[self.size][0]
+        self.rect = self.image.get_rect()
+        self.rect.center = center
+        self.frame = 0
+        self.last_update = pygame.time.get_ticks()
+        self.frame_rate = 50
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_update > self.frame_rate:
+            self.last_update = now
+            self.frame += 1
+            if self.frame == len(expl_anim[self.size]):
+                self.kill()
+            else:
+                self.image = expl_anim[self.size][self.frame]
+                center = self.rect.center
+                self.rect = self.image.get_rect()
+                self.rect.center = center
 
 all_sprites = pygame.sprite.Group()
 planes = pygame.sprite.Group()
@@ -164,12 +196,16 @@ while running:
     hits = pygame.sprite.groupcollide(planes, bullets, True,True)
     for hit in hits:
         score += 1
+        expl = Explosion(hit.rect.center, 'lg')
+        all_sprites.add(expl)
         new_plane()
 
     hits =  pygame.sprite.spritecollide(player1, planes, True ,pygame.sprite.collide_circle)
     for hit in hits:
         new_plane()
         player1.health -= hit.radius
+        expl = Explosion(hit.rect.center, 'sm')
+        all_sprites.add(expl)
         if player1.health <= 0:
             running = False
     #畫面顯示
