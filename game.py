@@ -18,19 +18,25 @@ pygame.display.set_caption("雞弊你")
 clock = pygame.time.Clock()
 
 #載入圖片
-sky_img = pygame.image.load(os.path.join("img", "sky.png")).convert()
-player1_img = pygame.image.load(os.path.join("img", "fighter-jet.png")).convert()
-plane_img = pygame.image.load(os.path.join("img", "plane.png")).convert()
-bullet_player1_img = pygame.image.load(os.path.join("img", "player1_bullet.png")).convert()
+sky_img = pygame.image.load(os.path.join("img", "universe1.png")).convert()
+player1_img = pygame.image.load(os.path.join("img", "UFO.png")).convert()
+player1_mini_img = pygame.transform.scale(player1_img,(30,30))
+player1_mini_img.set_colorkey(WHITE)
+plane_img = pygame.image.load(os.path.join("img", "monster.png")).convert()
+bullet_player1_img = pygame.image.load(os.path.join("img", "egg.png")).convert()
 expl_anim = {}
 expl_anim['lg'] = []
 expl_anim['sm'] = []
+expl_anim['player1'] = []
 for i in range(5):
     expl_img = pygame.image.load(os.path.join("img",f"expl{i}.png")).convert()
     expl_img.set_colorkey(WHITE)
     expl_anim['lg'].append(pygame.transform.scale(expl_img, (75,75)))
     expl_anim['sm'].append(pygame.transform.scale(expl_img, (75,75)))
-
+    player1_expl_img = pygame.image.load(os.path.join("img",f"expl{i}.png")).convert()
+    player1_expl_img.set_colorkey(WHITE)
+    expl_anim['player1'].append(pygame.transform.scale(expl_img, (80,80)))
+    
 #輸入字串
 font_name = pygame.font.match_font('arial')
 def draw_text(surf, text, size, x, y):
@@ -59,14 +65,19 @@ def draw_health(surf, hp, x, y):
     pygame.draw.rect(surf, GREEN, fill_rect)
     pygame.draw.rect(surf, WHITE, outline_rect, 2)
     
-
+def draw_lives(surf, lives, img,x ,y):
+    for i in range(lives):
+        img_rect = img.get_rect()
+        img_rect.x = x + 30 * i
+        img_rect.y = y 
+        surf.blit(img, img_rect)
 
 #輝船
 class Plane(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(plane_img,(50,38))
-        self.image.set_colorkey(BLACK)
+        self.image = pygame.transform.scale(plane_img,(70,70))
+        self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect()
         self.radius = int(self.rect.width *0.8 /2)
         #pygame.draw.circle(self.image,RED,self.rect.center,self.radius)
@@ -89,8 +100,8 @@ class Plane(pygame.sprite.Sprite):
 class Player1(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(player1_img,(50,38))
-        self.image.set_colorkey(BLACK)
+        self.image = pygame.transform.scale(player1_img,(60,60))
+        self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect() 
         self.radius =20
         #pygame.draw.circle(self.image,RED,self.rect.center,self.radius)
@@ -99,9 +110,18 @@ class Player1(pygame.sprite.Sprite):
         self.speedx = 10
         self.speedy = 10
         self.health = 100
+        self.lives = 3
+        self.hidden = False
+        self.hide_time = 0
 
 
     def update(self):
+        if self.hidden and pygame.time.get_ticks() - self.hide_time > 1000:
+            self.hidden = False
+            self.rect.centerx = WIDTH/2
+            self.rect.bottom = HEIGHT- 90
+
+
         key_pressed = pygame.key.get_pressed()
         if key_pressed[pygame.K_RIGHT]:
             self.rect.x += self.speedx
@@ -119,22 +139,28 @@ class Player1(pygame.sprite.Sprite):
         if self.rect.right < 0:
             self.rect.left = WIDTH 
         if self.rect.top < 0:
-            self.rect.top = 0
-        if self.rect.bottom > HEIGHT:
-            self.rect.bottom = HEIGHT
+           self.rect.top = 0
+        #if self.rect.bottom > HEIGHT:
+        #   self.rect.bottom = HEIGHT
             
 
 
     def shoot(self):
-        bullet = Bullet(self.rect.centerx, self.rect.top)
-        all_sprites.add(bullet)
-        bullets.add(bullet)
+        if not(self.hidden):
+            bullet = Bullet(self.rect.centerx, self.rect.top)
+            all_sprites.add(bullet)
+            bullets.add(bullet)
+
+    def hide(self):
+        self.hidden = True
+        self.hide_time = pygame.time.get_ticks()
+        self.rect.center = (WIDTH/2, HEIGHT+500)
 #組但
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.transform.scale(bullet_player1_img,(20,20))
-        self.image.set_colorkey(BLACK)
+        self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.bottom = y
@@ -199,7 +225,7 @@ while running:
         expl = Explosion(hit.rect.center, 'lg')
         all_sprites.add(expl)
         new_plane()
-
+    #判斷石頭 飛船相撞
     hits =  pygame.sprite.spritecollide(player1, planes, True ,pygame.sprite.collide_circle)
     for hit in hits:
         new_plane()
@@ -207,12 +233,20 @@ while running:
         expl = Explosion(hit.rect.center, 'sm')
         all_sprites.add(expl)
         if player1.health <= 0:
-            running = False
+            daeth_expl = Explosion(player1.rect.center,'player1')
+            all_sprites.add(daeth_expl)
+            player1.lives -= 1
+            player1.health = 100
+            player1.hide()
+    if player1.lives == 0 and not(daeth_expl.alive()):
+        running = False
+
     #畫面顯示
     screen.fill(WHITE)
     screen.blit(sky_img,(0,0))
     all_sprites.draw(screen)
     draw_text(screen, str(score),18,WIDTH/2,10)
     draw_health(screen,player1.health,5 ,10 )
+    draw_lives(screen, player1.lives, player1_mini_img, WIDTH - 100, 15)
     pygame.display.update()
 pygame.quit() 
