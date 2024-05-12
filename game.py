@@ -36,7 +36,10 @@ for i in range(5):
     player1_expl_img = pygame.image.load(os.path.join("img",f"expl{i}.png")).convert()
     player1_expl_img.set_colorkey(WHITE)
     expl_anim['player1'].append(pygame.transform.scale(expl_img, (80,80)))
-    
+power_imgs = {}
+power_imgs['shield'] = pygame.image.load(os.path.join("img", "shield_2D.png")).convert()
+power_imgs['moreegg'] = pygame.image.load(os.path.join("img", "moreegg.png")).convert()
+
 #輸入字串
 font_name = pygame.font.match_font('arial')
 def draw_text(surf, text, size, x, y):
@@ -113,9 +116,16 @@ class Player1(pygame.sprite.Sprite):
         self.lives = 3
         self.hidden = False
         self.hide_time = 0
+        self.gun = 1
+        self.gun_time = 0
 
 
     def update(self):
+        now = pygame.time.get_ticks()
+        if self.gun > 1 and now - self.gun_time > 5000:
+            self.gun -= 1
+            self.gun_time = now  
+
         if self.hidden and pygame.time.get_ticks() - self.hide_time > 1000:
             self.hidden = False
             self.rect.centerx = WIDTH/2
@@ -147,14 +157,26 @@ class Player1(pygame.sprite.Sprite):
 
     def shoot(self):
         if not(self.hidden):
-            bullet = Bullet(self.rect.centerx, self.rect.top)
-            all_sprites.add(bullet)
-            bullets.add(bullet)
+            if self.gun == 1:
+                bullet = Bullet(self.rect.centerx, self.rect.top)
+                all_sprites.add(bullet)
+                bullets.add(bullet)
+            elif self.gun >= 2:
+                bullet1 = Bullet(self.rect.left, self.rect.centery)
+                bullet2 = Bullet(self.rect.right, self.rect.centery)
+                all_sprites.add(bullet1)
+                all_sprites.add(bullet2)
+                bullets.add(bullet1)
+                bullets.add(bullet2)
 
     def hide(self):
         self.hidden = True
         self.hide_time = pygame.time.get_ticks()
         self.rect.center = (WIDTH/2, HEIGHT+500)
+
+    def gunup(self):
+       self.gun += 1
+       self.gun_time = pygame.time.get_ticks()
 #組但
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -194,10 +216,26 @@ class Explosion(pygame.sprite.Sprite):
                 center = self.rect.center
                 self.rect = self.image.get_rect()
                 self.rect.center = center
+#能力
+class Power(pygame.sprite.Sprite):
+    def __init__(self, center):
+        pygame.sprite.Sprite.__init__(self)
+        self.type = random.choice(['shield','moreegg'])
+        self.image = power_imgs[self.type]
+        #self.image.set_colorkey(WHITE)
+        self.rect = self.image.get_rect()
+        self.rect.center = center
+        self.speedy = 3 
+
+    def update(self):
+       self.rect.y += self.speedy
+       if self.rect.top > HEIGHT:
+           self.kill() 
 
 all_sprites = pygame.sprite.Group()
 planes = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
+powers = pygame.sprite.Group()
 player1 = Player1()
 all_sprites.add(player1)
 for i in range(8):
@@ -219,11 +257,16 @@ while running:
 
     #更新遊戲
     all_sprites.update()   
+    #判斷石頭 子彈相撞
     hits = pygame.sprite.groupcollide(planes, bullets, True,True)
     for hit in hits:
         score += 1
         expl = Explosion(hit.rect.center, 'lg')
         all_sprites.add(expl)
+        if random.random() > 0.3 :
+            pow = Power(hit.rect.center)
+            all_sprites.add(pow)
+            powers.add(pow)
         new_plane()
     #判斷石頭 飛船相撞
     hits =  pygame.sprite.spritecollide(player1, planes, True ,pygame.sprite.collide_circle)
@@ -233,12 +276,22 @@ while running:
         expl = Explosion(hit.rect.center, 'sm')
         all_sprites.add(expl)
         if player1.health <= 0:
-            daeth_expl = Explosion(player1.rect.center,'player1')
-            all_sprites.add(daeth_expl)
+            death_expl = Explosion(player1.rect.center,'player1')
+            all_sprites.add(death_expl)
             player1.lives -= 1
             player1.health = 100
             player1.hide()
-    if player1.lives == 0 and not(daeth_expl.alive()):
+
+    #判斷寶物 飛船相撞
+    hits =  pygame.sprite.spritecollide(player1, powers, True)
+    for hit in hits:
+        if hit.type == 'shield':
+            player1.health += 20
+            if player1.health > 100:
+                player1.health = 100
+        if hit.type == 'moreegg':
+            player1.gunup()
+    if player1.lives == 0 and not(death_expl.alive()):
         running = False
 
     #畫面顯示
