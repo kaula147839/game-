@@ -22,6 +22,7 @@ sky_img = pygame.image.load(os.path.join("img", "universe1.png")).convert()
 player1_img = pygame.image.load(os.path.join("img", "UFO.png")).convert()
 player1_mini_img = pygame.transform.scale(player1_img,(30,30))
 player1_mini_img.set_colorkey(WHITE)
+pygame.display.set_icon(player1_mini_img)
 plane_img = pygame.image.load(os.path.join("img", "monster.png")).convert()
 bullet_player1_img = pygame.image.load(os.path.join("img", "egg.png")).convert()
 expl_anim = {}
@@ -38,10 +39,12 @@ for i in range(5):
     expl_anim['player1'].append(pygame.transform.scale(expl_img, (80,80)))
 power_imgs = {}
 power_imgs['shield'] = pygame.image.load(os.path.join("img", "shield_2D.png")).convert()
-power_imgs['moreegg'] = pygame.image.load(os.path.join("img", "moreegg.png")).convert()
+power_imgs['gun'] = pygame.image.load(os.path.join("img", "moreegg.png")).convert()
+
+
 
 #輸入字串
-font_name = pygame.font.match_font('arial')
+font_name =os.path.join("mingliu.ttc")
 def draw_text(surf, text, size, x, y):
     font = pygame.font.Font(font_name, size)
     text_surface = font.render(text, True, WHITE)
@@ -75,6 +78,22 @@ def draw_lives(surf, lives, img,x ,y):
         img_rect.y = y 
         surf.blit(img, img_rect)
 
+def draw_init():
+    screen.blit(sky_img,(0,0))
+    draw_text(screen, '雞弊你', 50 , WIDTH/2 , HEIGHT/4)
+    draw_text(screen, '上下左右鍵控制UFO', 50 , WIDTH/2 , HEIGHT/2)
+    draw_text(screen, '任意鍵開始遊戲', 50 , WIDTH/2 , HEIGHT*3/4)
+    pygame.display.update()
+    waiting = True
+    while waiting:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return True
+            elif event.type == pygame.KEYUP:
+                waiting = False
+                return False
 #輝船
 class Plane(pygame.sprite.Sprite):
     def __init__(self):
@@ -181,7 +200,7 @@ class Player1(pygame.sprite.Sprite):
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(bullet_player1_img,(20,20))
+        self.image = pygame.transform.scale(bullet_player1_img,(30,30))
         self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect()
         self.rect.centerx = x
@@ -220,32 +239,40 @@ class Explosion(pygame.sprite.Sprite):
 class Power(pygame.sprite.Sprite):
     def __init__(self, center):
         pygame.sprite.Sprite.__init__(self)
-        self.type = random.choice(['shield','moreegg'])
+        self.type = random.choice(['shield','gun'])
         self.image = power_imgs[self.type]
-        #self.image.set_colorkey(WHITE)
+        self.image = pygame.transform.scale(power_imgs[self.type], (30, 30))
+        self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect()
         self.rect.center = center
-        self.speedy = 3 
+        self.speedy = 3
 
     def update(self):
        self.rect.y += self.speedy
        if self.rect.top > HEIGHT:
            self.kill() 
 
-all_sprites = pygame.sprite.Group()
-planes = pygame.sprite.Group()
-bullets = pygame.sprite.Group()
-powers = pygame.sprite.Group()
-player1 = Player1()
-all_sprites.add(player1)
-for i in range(8):
-    new_plane()
-score = 0
 
 
 #迴圈
+show_init = True
 running = True
 while running:
+    if show_init:
+        close = draw_init()
+        if close:
+            break
+        show_init = False
+        all_sprites = pygame.sprite.Group()
+        planes = pygame.sprite.Group()
+        bullets = pygame.sprite.Group()
+        powers = pygame.sprite.Group()
+        player1 = Player1()
+        all_sprites.add(player1)
+        for i in range(8):
+            new_plane()
+        score = 0
+
     clock.tick(FPS)
     #取得輸入
     for event in pygame.event.get():
@@ -263,10 +290,11 @@ while running:
         score += 1
         expl = Explosion(hit.rect.center, 'lg')
         all_sprites.add(expl)
-        if random.random() > 0.3 :
+        if random.random() > 0.4:
             pow = Power(hit.rect.center)
             all_sprites.add(pow)
             powers.add(pow)
+
         new_plane()
     #判斷石頭 飛船相撞
     hits =  pygame.sprite.spritecollide(player1, planes, True ,pygame.sprite.collide_circle)
@@ -289,10 +317,10 @@ while running:
             player1.health += 20
             if player1.health > 100:
                 player1.health = 100
-        if hit.type == 'moreegg':
+        if hit.type == 'gun':
             player1.gunup()
     if player1.lives == 0 and not(death_expl.alive()):
-        running = False
+        show_init = True
 
     #畫面顯示
     screen.fill(WHITE)
