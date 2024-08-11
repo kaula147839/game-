@@ -78,14 +78,14 @@ def draw_health(surf, hp, x, y):
     fill_rect = pygame.Rect(x, y, fill, BAR_HEIGHT)
     pygame.draw.rect(surf, GREEN, fill_rect)
     pygame.draw.rect(surf, WHITE, outline_rect, 2)
-    
+# 畫生命數
 def draw_lives(surf, lives, img,x ,y):
     for i in range(lives):
         img_rect = img.get_rect()
         img_rect.x = x + 30 * i
         img_rect.y = y 
         surf.blit(img, img_rect)
-
+# 畫起始畫面
 def draw_init():
     screen.blit(sky_img,(0,0))
     draw_text(screen, '雞星人進攻', 50 , WIDTH/2 , HEIGHT/4)
@@ -177,7 +177,7 @@ class Player1(pygame.sprite.Sprite):
             self.rect.left = WIDTH 
         if self.rect.top < 0:
            self.rect.top = 0
-        #if self.rect.bottom > HEIGHT:
+        # if self.rect.bottom > HEIGHT:
         #   self.rect.bottom = HEIGHT
             
 
@@ -206,7 +206,7 @@ class Player1(pygame.sprite.Sprite):
     def gunup(self):
        self.gun += 1
        self.gun_time = pygame.time.get_ticks()
-#子彈
+# 子彈
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
@@ -221,7 +221,7 @@ class Bullet(pygame.sprite.Sprite):
        self.rect.y += self.speedy
        if self.rect.bottom < 0:
            self.kill() 
-#爆炸
+# 爆炸
 class Explosion(pygame.sprite.Sprite):
     def __init__(self, center, size):
         pygame.sprite.Sprite.__init__(self)
@@ -245,7 +245,7 @@ class Explosion(pygame.sprite.Sprite):
                 center = self.rect.center
                 self.rect = self.image.get_rect()
                 self.rect.center = center
-#能力
+# 能力
 class Power(pygame.sprite.Sprite):
     def __init__(self, center):
         pygame.sprite.Sprite.__init__(self)
@@ -264,7 +264,7 @@ class Power(pygame.sprite.Sprite):
 
 
 
-#迴圈
+# 迴圈
 show_init = True
 running = True
 while running:
@@ -285,7 +285,7 @@ while running:
         # pygame.mixer.music.play(-1)
 
     clock.tick(FPS)
-    #取得輸入
+    # 取得輸入
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -293,9 +293,9 @@ while running:
             if event.key == pygame.K_SPACE:
                 player1.shoot()
 
-    #更新遊戲
+    # 更新遊戲
     all_sprites.update()   
-    #判斷怪物 子彈相撞
+    # 判斷怪物 子彈相撞
     hits = pygame.sprite.groupcollide(Monsters, bullets, True,True)
     for hit in hits:
         score += 1
@@ -308,7 +308,7 @@ while running:
             powers.add(pow)
 
         new_Monster()
-    #判斷怪物 飛船相撞
+    # 判斷怪物 飛船相撞
     hits =  pygame.sprite.spritecollide(player1, Monsters, True ,pygame.sprite.collide_circle)
     for hit in hits:
         new_Monster()
@@ -322,7 +322,7 @@ while running:
             player1.health = 100
             player1.hide()
 
-    #判斷寶物 飛船相撞
+    # 判斷寶物 飛船相撞
     hits =  pygame.sprite.spritecollide(player1, powers, True)
     for hit in hits:
         if hit.type == 'shield':
@@ -334,7 +334,7 @@ while running:
     if player1.lives == 0 and not(death_expl.alive()):
         show_init = True
 
-    #畫面顯示
+    # 畫面顯示
     screen.fill(WHITE)
     screen.blit(sky_img,(0,0))
     all_sprites.draw(screen)
