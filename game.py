@@ -134,7 +134,7 @@ class Player1(pygame.sprite.Sprite):
         self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect() 
         self.radius =20
-        #pygame.draw.circle(self.image,RED,self.rect.center,self.radius)
+        # pygame.draw.circle(self.image,RED,self.rect.center,self.radius)
         self.rect.centerx = WIDTH/2
         self.rect.bottom = HEIGHT- 90
         self.speedx = 10
