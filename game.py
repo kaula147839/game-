@@ -11,20 +11,20 @@ GREY = (190,190,190)
 RED = (255,0,0)
 YELLOW = (255,255,0)
 BLACK = (0,0,0)
-#遊戲初始化 創視窗
+# 遊戲初始化 創視窗
 pygame.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("雞星人進攻")
 clock = pygame.time.Clock()
 
-#載入圖片
+# 載入圖片
 sky_img = pygame.image.load(os.path.join("img", "universe1.png")).convert()
 player1_img = pygame.image.load(os.path.join("img", "UFO.png")).convert()
 player1_mini_img = pygame.transform.scale(player1_img,(30,30))
 player1_mini_img.set_colorkey(WHITE)
 pygame.display.set_icon(player1_mini_img)
-plane_img = pygame.image.load(os.path.join("img", "monster.png")).convert()
+Monster_img = pygame.image.load(os.path.join("img", "monster.png")).convert()
 bullet_player1_img = pygame.image.load(os.path.join("img", "egg.png")).convert()
 expl_anim = {}
 expl_anim['lg'] = []
@@ -51,7 +51,7 @@ power_imgs['gun'] = pygame.image.load(os.path.join("img", "moreegg.png")).conver
 # pygame.mixer.music.set_volune(0.4)
 
 
-#輸入字串
+# 輸入字串
 font_name =os.path.join("mingliu.ttc")
 def draw_text(surf, text, size, x, y):
     font = pygame.font.Font(font_name, size)
@@ -61,13 +61,13 @@ def draw_text(surf, text, size, x, y):
     text_rect.top = y
     surf.blit(text_surface, text_rect)
 
+# 
+def new_Monster():
+    m = Monster()
+    all_sprites.add(m)
+    Monsters.add (m)
 
-def new_plane():
-    p = Plane()
-    all_sprites.add(p)
-    planes.add (p)
-
-#畫生命條
+# 畫生命條
 def draw_health(surf, hp, x, y):
     if hp < 0:
         hp = 0
@@ -102,11 +102,11 @@ def draw_init():
             elif event.type == pygame.KEYUP:
                 waiting = False
                 return False
-#輝船
-class Plane(pygame.sprite.Sprite):
+# 怪物
+class Monster(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(plane_img,(70,70))
+        self.image = pygame.transform.scale(Monster_img,(70,70))
         self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect()
         self.radius = int(self.rect.width *0.8 /2)
@@ -126,7 +126,7 @@ class Plane(pygame.sprite.Sprite):
             self.rect.y = random.randrange(-100,-40)
             self.speedy = random.randrange(2,10)
             self.speedx = random.randrange(-5,4)
-#玩家
+# 玩家
 class Player1(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
@@ -274,13 +274,13 @@ while running:
             break
         show_init = False
         all_sprites = pygame.sprite.Group()
-        planes = pygame.sprite.Group()
+        Monsters = pygame.sprite.Group()
         bullets = pygame.sprite.Group()
         powers = pygame.sprite.Group()
         player1 = Player1()
         all_sprites.add(player1)
         for i in range(8):
-            new_plane()
+            new_Monster()
         score = 0
         # pygame.mixer.music.play(-1)
 
@@ -296,7 +296,7 @@ while running:
     #更新遊戲
     all_sprites.update()   
     #判斷石頭 子彈相撞
-    hits = pygame.sprite.groupcollide(planes, bullets, True,True)
+    hits = pygame.sprite.groupcollide(Monsters, bullets, True,True)
     for hit in hits:
         score += 1
         # random.choice(expl_sounds).play
@@ -307,11 +307,11 @@ while running:
             all_sprites.add(pow)
             powers.add(pow)
 
-        new_plane()
+        new_Monster()
     #判斷石頭 飛船相撞
-    hits =  pygame.sprite.spritecollide(player1, planes, True ,pygame.sprite.collide_circle)
+    hits =  pygame.sprite.spritecollide(player1, Monsters, True ,pygame.sprite.collide_circle)
     for hit in hits:
-        new_plane()
+        new_Monster()
         player1.health -= hit.radius
         expl = Explosion(hit.rect.center, 'sm')
         all_sprites.add(expl)
