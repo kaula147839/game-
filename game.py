@@ -13,6 +13,7 @@ YELLOW = (255,255,0)
 BLACK = (0,0,0)
 #遊戲初始化 創視窗
 pygame.init()
+pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("雞星人進攻")
 clock = pygame.time.Clock()
@@ -40,7 +41,14 @@ for i in range(5):
 power_imgs = {}
 power_imgs['shield'] = pygame.image.load(os.path.join("img", "shield_2D.png")).convert()
 power_imgs['gun'] = pygame.image.load(os.path.join("img", "moreegg.png")).convert()
-
+# #載入音樂
+# shoot_sound = pygame.mixer.Sound(os.path.join("路徑"))
+# expl_sounds = [
+#     pygame.mixer.Sound(os.path.join("路徑")),
+#     pygame.mixer.Sound(os.path.join("路徑"))
+# ]
+# pygame.mixer.music.load(os.path.join("路徑"))
+# pygame.mixer.music.set_volune(0.4)
 
 
 #輸入字串
@@ -176,6 +184,7 @@ class Player1(pygame.sprite.Sprite):
 
     def shoot(self):
         if not(self.hidden):
+            # shoot_sound.play()
             if self.gun == 1:
                 bullet = Bullet(self.rect.centerx, self.rect.top)
                 all_sprites.add(bullet)
@@ -187,6 +196,7 @@ class Player1(pygame.sprite.Sprite):
                 all_sprites.add(bullet2)
                 bullets.add(bullet1)
                 bullets.add(bullet2)
+
 
     def hide(self):
         self.hidden = True
@@ -272,6 +282,7 @@ while running:
         for i in range(8):
             new_plane()
         score = 0
+        # pygame.mixer.music.play(-1)
 
     clock.tick(FPS)
     #取得輸入
@@ -288,6 +299,7 @@ while running:
     hits = pygame.sprite.groupcollide(planes, bullets, True,True)
     for hit in hits:
         score += 1
+        # random.choice(expl_sounds).play
         expl = Explosion(hit.rect.center, 'lg')
         all_sprites.add(expl)
         if random.random() > 0.4:
