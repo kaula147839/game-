@@ -110,7 +110,7 @@ class Monster(pygame.sprite.Sprite):
         self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect()
         self.radius = int(self.rect.width *0.8 /2)
-        #pygame.draw.circle(self.image,RED,self.rect.center,self.radius)
+        # pygame.draw.circle(self.image,RED,self.rect.center,self.radius)
         self.rect.x = random.randrange(0, WIDTH - self.rect.width)
         self.rect.y = random.randrange(-100,-40)
         self.speedy = random.randrange(2,10)
