@@ -14,7 +14,7 @@ BLACK = (0,0,0)
 #遊戲初始化 創視窗
 pygame.init()
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
-pygame.display.set_caption("雞弊你")
+pygame.display.set_caption("雞星人進攻")
 clock = pygame.time.Clock()
 
 #載入圖片
@@ -80,7 +80,7 @@ def draw_lives(surf, lives, img,x ,y):
 
 def draw_init():
     screen.blit(sky_img,(0,0))
-    draw_text(screen, '雞弊你', 50 , WIDTH/2 , HEIGHT/4)
+    draw_text(screen, '雞星人進攻', 50 , WIDTH/2 , HEIGHT/4)
     draw_text(screen, '上下左右鍵控制UFO', 50 , WIDTH/2 , HEIGHT/2)
     draw_text(screen, '任意鍵開始遊戲', 50 , WIDTH/2 , HEIGHT*3/4)
     pygame.display.update()
