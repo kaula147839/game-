@@ -61,7 +61,7 @@ def draw_text(surf, text, size, x, y):
     text_rect.top = y
     surf.blit(text_surface, text_rect)
 
-# 
+# 新增怪物
 def new_Monster():
     m = Monster()
     all_sprites.add(m)
@@ -206,7 +206,7 @@ class Player1(pygame.sprite.Sprite):
     def gunup(self):
        self.gun += 1
        self.gun_time = pygame.time.get_ticks()
-#組但
+#子彈
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
@@ -295,7 +295,7 @@ while running:
 
     #更新遊戲
     all_sprites.update()   
-    #判斷石頭 子彈相撞
+    #判斷怪物 子彈相撞
     hits = pygame.sprite.groupcollide(Monsters, bullets, True,True)
     for hit in hits:
         score += 1
@@ -308,7 +308,7 @@ while running:
             powers.add(pow)
 
         new_Monster()
-    #判斷石頭 飛船相撞
+    #判斷怪物 飛船相撞
     hits =  pygame.sprite.spritecollide(player1, Monsters, True ,pygame.sprite.collide_circle)
     for hit in hits:
         new_Monster()
