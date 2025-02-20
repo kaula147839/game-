@@ -46,20 +46,22 @@ power_imgs['gun'] = pygame.image.load(os.path.join("img", "moreegg.png")).conver
 
 # 輸入字串
 font_name =os.path.join("mingliu.ttc")
-def draw_text(surf, text, size, x, y):
+def draw_text(surf, text, size, x, y, COLOR):
     font = pygame.font.Font(font_name, size)
-    text_surface = font.render(text, True, WHITE)
+    text_surface = font.render(text, True, COLOR)
     text_rect = text_surface.get_rect()
     text_rect.centerx = x
     text_rect.top = y
     surf.blit(text_surface, text_rect)
 
 # 按鈕
-def button(surf,text,text_size,x,y,mouse_x,mouse_y,Button_LENGTH,Button_HEIGHT):
-    Rect = pygame.Rect(x,y,Button_LENGTH,Button_HEIGHT)
-    draw_text(surf,text,text_size,Button_LENGTH/2,Button_HEIGHT/2)
-    pygame.draw.rect(surf,PINK,Rect)
-    pygame.draw.rect(surf,BLACK,Rect,2)
+def button(surf,text,text_size,x,y,mouse_x,mouse_y,Button_LENGTH,Button_HEIGHT,Button_Color,Button_side_Color):
+    Center_x = x-Button_LENGTH/2
+    Center_y = y-Button_HEIGHT/2
+    Rect = pygame.Rect(Center_x,Center_y,Button_LENGTH,Button_HEIGHT)
+    pygame.draw.rect(surf,Button_Color,Rect)
+    pygame.draw.rect(surf,Button_side_Color,Rect,2)
+    draw_text(surf,text,text_size,x,y-text_size/2,BLACK)
     if mouse_x >= x and mouse_x <= x + Button_LENGTH and mouse_y >= y and mouse_y <= y + Button_HEIGHT:
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             return True
@@ -96,9 +98,9 @@ def draw_menu():
 
 def draw_init():
     screen.blit(sky_img,(0,0))
-    draw_text(screen, '雞弊你', 50 , WIDTH/2 , HEIGHT/4)
-    draw_text(screen, '上下左右鍵控制UFO', 50 , WIDTH/2 , HEIGHT/2)
-    button(screen,'開始遊戲',25,WIDTH/2,HEIGHT*3/4,mouse_x,mouse_y,99,33)
+    draw_text(screen, '雞弊你', 50 , WIDTH/2 , HEIGHT/4, BLACK)
+    draw_text(screen, '上下左右鍵控制UFO', 50 , WIDTH/2 , HEIGHT/2,BLACK)
+    button(screen,'開始遊戲',25,WIDTH/2,HEIGHT*3/4,mouse_x,mouse_y,300,100,WHITE,BLACK)
     pygame.display.update()
     waiting = True
     while waiting:
@@ -343,7 +345,7 @@ while running:
     screen.fill(WHITE)
     screen.blit(sky_img,(0,0))
     all_sprites.draw(screen)
-    draw_text(screen, str(score),18,WIDTH/2,10)
+    draw_text(screen, str(score),18,WIDTH/2,10,WHITE)
     draw_health(screen,player1.health,5 ,10 )
     draw_lives(screen, player1.lives, player1_mini_img, WIDTH - 100, 15)
     pygame.display.update()
