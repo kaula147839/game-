@@ -11,17 +11,19 @@ GREY = (190,190,190)
 RED = (255,0,0)
 YELLOW = (255,255,0)
 BLACK = (0,0,0)
-#遊戲初始化 創視窗
+PINK = (255,0,200)
+# 遊戲初始化 創視窗
 pygame.init()
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("雞弊你")
 clock = pygame.time.Clock()
 
-#載入圖片
+# 載入圖片
 sky_img = pygame.image.load(os.path.join("img", "universe1.png")).convert()
 player1_img = pygame.image.load(os.path.join("img", "UFO.png")).convert()
 player1_mini_img = pygame.transform.scale(player1_img,(30,30))
 player1_mini_img.set_colorkey(WHITE)
+pygame.display.set_icon(player1_mini_img)
 plane_img = pygame.image.load(os.path.join("img", "monster.png")).convert()
 bullet_player1_img = pygame.image.load(os.path.join("img", "egg.png")).convert()
 expl_anim = {}
@@ -42,7 +44,7 @@ power_imgs['gun'] = pygame.image.load(os.path.join("img", "moreegg.png")).conver
 
 
 
-#輸入字串
+# 輸入字串
 font_name =os.path.join("mingliu.ttc")
 def draw_text(surf, text, size, x, y):
     font = pygame.font.Font(font_name, size)
@@ -52,13 +54,24 @@ def draw_text(surf, text, size, x, y):
     text_rect.top = y
     surf.blit(text_surface, text_rect)
 
+# 按鈕
+def button(surf,text,text_size,x,y,mouse_x,mouse_y,Button_LENGTH,Button_HEIGHT):
+    Rect = pygame.Rect(x,y,Button_LENGTH,Button_HEIGHT)
+    draw_text(surf,text,text_size,Button_LENGTH/2,Button_HEIGHT/2)
+    pygame.draw.rect(surf,PINK,Rect)
+    pygame.draw.rect(surf,BLACK,Rect,2)
+    if mouse_x >= x and mouse_x <= x + Button_LENGTH and mouse_y >= y and mouse_y <= y + Button_HEIGHT:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            return True
+        else:
+            return False
 
 def new_plane():
     p = Plane()
     all_sprites.add(p)
     planes.add (p)
 
-#畫生命條
+# 畫生命條
 def draw_health(surf, hp, x, y):
     if hp < 0:
         hp = 0
@@ -77,11 +90,15 @@ def draw_lives(surf, lives, img,x ,y):
         img_rect.y = y 
         surf.blit(img, img_rect)
 
+# 選單
+def draw_menu():
+    screen.blit(sky_img,(0,0))
+
 def draw_init():
     screen.blit(sky_img,(0,0))
-    draw_text(screen, '雞斃你', 50 , WIDTH/2 , HEIGHT/4)
+    draw_text(screen, '雞弊你', 50 , WIDTH/2 , HEIGHT/4)
     draw_text(screen, '上下左右鍵控制UFO', 50 , WIDTH/2 , HEIGHT/2)
-    draw_text(screen, '任意鍵開始遊戲', 50 , WIDTH/2 , HEIGHT*3/4)
+    button(screen,'開始遊戲',25,WIDTH/2,HEIGHT*3/4,mouse_x,mouse_y,99,33)
     pygame.display.update()
     waiting = True
     while waiting:
@@ -93,7 +110,7 @@ def draw_init():
             elif event.type == pygame.KEYUP:
                 waiting = False
                 return False
-#輝船
+# 輝船
 class Plane(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
@@ -117,7 +134,7 @@ class Plane(pygame.sprite.Sprite):
             self.rect.y = random.randrange(-100,-40)
             self.speedy = random.randrange(2,10)
             self.speedx = random.randrange(-5,4)
-#玩家
+# 玩家
 class Player1(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
@@ -195,7 +212,7 @@ class Player1(pygame.sprite.Sprite):
     def gunup(self):
        self.gun += 1
        self.gun_time = pygame.time.get_ticks()
-#組但
+# 組但
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
@@ -210,7 +227,7 @@ class Bullet(pygame.sprite.Sprite):
        self.rect.y += self.speedy
        if self.rect.bottom < 0:
            self.kill() 
-#爆炸
+# 爆炸
 class Explosion(pygame.sprite.Sprite):
     def __init__(self, center, size):
         pygame.sprite.Sprite.__init__(self)
@@ -253,10 +270,11 @@ class Power(pygame.sprite.Sprite):
 
 
 
-#迴圈
+# 迴圈
 show_init = True
 running = True
 while running:
+    mouse_x,mouse_y = pygame.mouse.get_pos()  # 獲取滑鼠位置 
     if show_init:
         close = draw_init()
         if close:
