@@ -24,7 +24,7 @@ player1_img = pygame.image.load(os.path.join("img", "UFO.png")).convert()
 player1_mini_img = pygame.transform.scale(player1_img,(30,30))
 player1_mini_img.set_colorkey(WHITE)
 pygame.display.set_icon(player1_mini_img)
-plane_img = pygame.image.load(os.path.join("img", "monster.png")).convert()
+monster_img = pygame.image.load(os.path.join("img", "monster.png")).convert()
 bullet_player1_img = pygame.image.load(os.path.join("img", "egg.png")).convert()
 expl_anim = {}
 expl_anim['lg'] = []
@@ -55,23 +55,24 @@ def draw_text(surf, text, size, x, y, COLOR):
     surf.blit(text_surface, text_rect)
 
 # 按鈕
-def button(surf,text,text_size,x,y,mouse_x,mouse_y,Button_LENGTH,Button_HEIGHT,Button_Color,Button_side_Color):
+def button(surf,text,text_size,x,y,Button_LENGTH,Button_HEIGHT,Button_Color,Button_side_Color):
     Center_x = x-Button_LENGTH/2
     Center_y = y-Button_HEIGHT/2
     Rect = pygame.Rect(Center_x,Center_y,Button_LENGTH,Button_HEIGHT)
     pygame.draw.rect(surf,Button_Color,Rect)
     pygame.draw.rect(surf,Button_side_Color,Rect,2)
-    draw_text(surf,text,text_size,x,y-text_size/2,BLACK)
-    if mouse_x >= x and mouse_x <= x + Button_LENGTH and mouse_y >= y and mouse_y <= y + Button_HEIGHT:
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            return True
+    draw_text(surf,text,text_size,x,y-text_size/2,BLACK) 
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN:
+                return True
         else:
             return False
 
-def new_plane():
-    p = Plane()
-    all_sprites.add(p)
-    planes.add (p)
+def new_monster():
+    m = Monster()
+    all_sprites.add(m)
+    monsters.add (m)
 
 # 畫生命條
 def draw_health(surf, hp, x, y):
@@ -93,14 +94,14 @@ def draw_lives(surf, lives, img,x ,y):
         surf.blit(img, img_rect)
 
 # 選單
-def draw_menu():
-    screen.blit(sky_img,(0,0))
+# def draw_menu():
+#     screen.blit(sky_img,(0,0))
 
 def draw_init():
     screen.blit(sky_img,(0,0))
     draw_text(screen, '雞弊你', 50 , WIDTH/2 , HEIGHT/4, BLACK)
     draw_text(screen, '上下左右鍵控制UFO', 50 , WIDTH/2 , HEIGHT/2,BLACK)
-    button(screen,'開始遊戲',25,WIDTH/2,HEIGHT*3/4,mouse_x,mouse_y,300,100,WHITE,BLACK)
+    button(screen,'開始遊戲',25,WIDTH/2,HEIGHT*3/4,300,100,WHITE,BLACK)
     pygame.display.update()
     waiting = True
     while waiting:
@@ -109,14 +110,14 @@ def draw_init():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 return True
-            elif :
+        if  button(screen,'開始遊戲',25,WIDTH/2,HEIGHT*3/4,300,100,WHITE,BLACK) == True:
                 waiting = False
                 return False
-# 輝船
-class Plane(pygame.sprite.Sprite):
+# 怪物
+class Monster(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(plane_img,(70,70))
+        self.image = pygame.transform.scale(monster_img,(70,70))
         self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect()
         self.radius = int(self.rect.width *0.8 /2)
@@ -170,21 +171,21 @@ class Player1(pygame.sprite.Sprite):
 
 
         key_pressed = pygame.key.get_pressed()
-        if key_pressed[pygame.K_RIGHT]:
+        if key_pressed[pygame.K_d]:
             self.rect.x += self.speedx
-        if key_pressed[pygame.K_LEFT]:
+        if key_pressed[pygame.K_a]:
             self.rect.x -= self.speedx
-        if key_pressed[pygame.K_UP]:
+        if key_pressed[pygame.K_w]:
             self.rect.y -= self.speedy
-        if key_pressed[pygame.K_DOWN]:
+        if key_pressed[pygame.K_s]:
             self.rect.y += self.speedy
        
 
 
-        if self.rect.left > WIDTH:
-            self.rect.right = 0
-        if self.rect.right < 0:
-            self.rect.left = WIDTH 
+        if self.rect.right > WIDTH:
+            self.rect.right = WIDTH
+        if self.rect.left < 0:
+            self.rect.left = 0 
         if self.rect.top < 0:
            self.rect.top = 0
         #if self.rect.bottom > HEIGHT:
@@ -276,21 +277,19 @@ class Power(pygame.sprite.Sprite):
 show_init = True
 running = True
 while running:
-    Button_reset = False
-    mouse_x,mouse_y = pygame.mouse.get_pos()  # 獲取滑鼠位置 
     if show_init:
         close = draw_init()
         if close:
             break
         show_init = False
         all_sprites = pygame.sprite.Group()
-        planes = pygame.sprite.Group()
+        monsters = pygame.sprite.Group()
         bullets = pygame.sprite.Group()
         powers = pygame.sprite.Group()
         player1 = Player1()
         all_sprites.add(player1)
         for i in range(8):
-            new_plane()
+            new_monster()
         score = 0
 
     clock.tick(FPS)
@@ -299,13 +298,13 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
+            if event.key == pygame.K_j:
                 player1.shoot()
 
     #更新遊戲
     all_sprites.update()   
     #判斷石頭 子彈相撞
-    hits = pygame.sprite.groupcollide(planes, bullets, True,True)
+    hits = pygame.sprite.groupcollide(monsters, bullets, True,True)
     for hit in hits:
         score += 1
         expl = Explosion(hit.rect.center, 'lg')
@@ -315,11 +314,11 @@ while running:
             all_sprites.add(pow)
             powers.add(pow)
 
-        new_plane()
+        new_monster()
     #判斷石頭 飛船相撞
-    hits =  pygame.sprite.spritecollide(player1, planes, True ,pygame.sprite.collide_circle)
+    hits =  pygame.sprite.spritecollide(player1, monsters, True ,pygame.sprite.collide_circle)
     for hit in hits:
-        new_plane()
+        new_monster()
         player1.health -= hit.radius
         expl = Explosion(hit.rect.center, 'sm')
         all_sprites.add(expl)
