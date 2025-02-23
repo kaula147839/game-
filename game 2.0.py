@@ -55,19 +55,25 @@ def draw_text(surf, text, size, x, y, COLOR):
     surf.blit(text_surface, text_rect)
 
 # 按鈕
-def button(surf,text,text_size,x,y,Button_LENGTH,Button_HEIGHT,Button_Color,Button_side_Color):
+def button(surf,text,text_size,x,y,Button_LENGTH,Button_HEIGHT,Button_Color,Button_side_Color,chosen):
     Center_x = x-Button_LENGTH/2
     Center_y = y-Button_HEIGHT/2
     Rect = pygame.Rect(Center_x,Center_y,Button_LENGTH,Button_HEIGHT)
-    pygame.draw.rect(surf,Button_Color,Rect)
-    pygame.draw.rect(surf,Button_side_Color,Rect,2)
-    draw_text(surf,text,text_size,x,y-text_size/2,BLACK) 
-    for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RETURN:
-                return True
-        else:
-            return False
+    if chosen:
+        pygame.draw.rect(surf,Button_Color,Rect)
+        pygame.draw.rect(surf,Button_side_Color,Rect,2)
+        draw_text(surf,text,text_size,x,y-text_size/2,BLACK) 
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    return True
+            else:
+                return False
+    else:
+        pygame.draw.rect(surf,Button_Color,Rect)
+        pygame.draw.rect(surf,Button_side_Color,Rect,2)
+        draw_text(surf,text,text_size,x,y-text_size/2,BLACK) 
+        
 
 def new_monster():
     m = Monster()
@@ -97,6 +103,15 @@ def draw_lives(surf, lives, img,x ,y):
 # def draw_menu():
 #     screen.blit(sky_img,(0,0))
 
+# 選模式
+def mode_choose():
+    button(screen,'1P',225,50,50,225,225,YELLOW,BLACK,True)
+    button(screen,'2P',225,350,350,225,225,YELLOW,BLACK,False)
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_TAB:
+                 
+    
 def draw_init():
     screen.blit(sky_img,(0,0))
     draw_text(screen, '雞弊你', 50 , WIDTH/2 , HEIGHT/4, BLACK)
