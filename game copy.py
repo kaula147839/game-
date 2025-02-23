@@ -109,7 +109,7 @@ def draw_init():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 return True
-            elif event.type == pygame.KEYUP:
+            elif :
                 waiting = False
                 return False
 # 輝船
@@ -276,6 +276,7 @@ class Power(pygame.sprite.Sprite):
 show_init = True
 running = True
 while running:
+    Button_reset = False
     mouse_x,mouse_y = pygame.mouse.get_pos()  # 獲取滑鼠位置 
     if show_init:
         close = draw_init()
