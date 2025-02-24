@@ -74,6 +74,8 @@ def button(surf,text,text_size,x,y,Button_LENGTH,Button_HEIGHT,Button_Color,Butt
         pygame.draw.rect(surf,Button_side_Color,Rect,2)
         draw_text(surf,text,text_size,x,y-text_size/2,BLACK) 
         
+# 換按鈕模式
+def Button_change()
 
 def new_monster():
     m = Monster()
@@ -105,12 +107,12 @@ def draw_lives(surf, lives, img,x ,y):
 
 # 選模式
 def mode_choose():
-    button(screen,'1P',225,50,50,225,225,YELLOW,BLACK,True)
-    button(screen,'2P',225,350,350,225,225,YELLOW,BLACK,False)
+    button_1p = button(screen,'1P',225,50,50,225,225,YELLOW,BLACK,True)
+    button_2p = button(screen,'2P',225,350,350,225,225,YELLOW,BLACK,False)
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_TAB:
-                 
+               Button_change(button_1p,button_2p)  
     
 def draw_init():
     screen.blit(sky_img,(0,0))
